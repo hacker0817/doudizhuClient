@@ -33,6 +33,10 @@ button {
     border: none;
 }
 
+button {
+    cursor: pointer;
+}
+
 .login-wrap {
     width: 100%;
     margin: auto;
