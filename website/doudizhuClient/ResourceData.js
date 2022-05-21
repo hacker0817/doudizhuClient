@@ -59,7 +59,7 @@ var ResourceData= {
         ,53:{path:"img/53.jpg", picNum:{WNum:1,HNum:1},cellSize:{width:105,height:150}, data:null,se:1,num:14}
         ,54:{path:"img/54.jpg", picNum:{WNum:1,HNum:1},cellSize:{width:105,height:150}, data:null,se:1,num:16}
         ,BeiMian:{path:"img/BeiMian.jpg", picNum:{WNum:1,HNum:1},cellSize:{width:105,height:150}, data:null}
-        ,bg1:{path:"img/bg1.png", picNum:{WNum:1,HNum:1},cellSize:{width:640,height:320}, data:null}
+        ,bg1:{path:"img/rlcard/gameboard.png", picNum:{WNum:1,HNum:1},cellSize:{width:1440,height:1024}, data:null}
         ,dz:{path:"img/dz.png", picNum:{WNum:1,HNum:1},cellSize:{width:30,height:30}, data:null}
         ,nm:{path:"img/nm.png", picNum:{WNum:1,HNum:1},cellSize:{width:30,height:30}, data:null}
         ,kaishi:{path:"img/kaishi.png", picNum:{WNum:1,HNum:1},cellSize:{width:130,height:50}, data:null}

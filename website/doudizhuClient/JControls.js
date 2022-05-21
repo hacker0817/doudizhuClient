@@ -1,5 +1,13 @@
+var screenW = document.documentElement.clientWidth;
+var screenH = document.documentElement.clientHeight;
+var gameW = 800;
+var gameH = 480;
+
+let kW = screenW / gameW; //屏幕宽度与标准宽度的比值
+let kH = screenH / gameH; //屏幕高度与标准高度的比值
+
 var JMain = {
-    JZoom: { x: 1.0, y: 1.0 },
+    JZoom: { x: kW, y: kH },
     JFocusControl: null,
     JForm: null,
     JTick: null,
