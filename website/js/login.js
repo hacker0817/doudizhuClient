@@ -1,5 +1,3 @@
-var baseUrl = "http://192.168.0.212:5050";
-
 $(function () {
     $("#register").on("click", function () {
         let name = $("#name").val();
@@ -90,9 +88,11 @@ function login(name, password) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (result, status, xhr) {
-            if (result.msg == "")
+            if (result.msg == "") {
+                console.log(result);
+                setCookie("token", result.token);
                 window.location.href = "./doudizhuClient/index.html";
-            // pxmu.success("login success");
+            }
             else
                 pxmu.fail(result.msg);
             pxmu.closeload(1000);
