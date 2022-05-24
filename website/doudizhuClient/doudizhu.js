@@ -1,6 +1,12 @@
-const connection = new signalR.HubConnectionBuilder().withUrl("http://192.168.1.52:5050/ws", options => {
-    options.AccessTokenProvider = () => Task.FromResult("111");
-}).configureLogging(signalR.LogLevel.Information).build();
+var token = getCookie("token");
+
+console.log(token);
+// Connect, using the token we got.
+var connection = new signalR.HubConnectionBuilder()
+    .withUrl("http://192.168.0.212:5050/gamews", { accessTokenFactory: () => token })
+    .build();
+
+console.log(connection);
 
 async function start() {
     try {
@@ -17,12 +23,11 @@ connection.onclose(async() => {
 });
 
 $(function() {
-    var token = getCookie("token");
     if (token != "") {
         readyGame(token);
         DJDDZ.Init("canvas1");
     } else
-        window.location.replace("http://192.168.0.212/web/index.html");
+        window.location.replace(baseUrl + "/web/index.html");
 });
 
 function readyGame(token) {
