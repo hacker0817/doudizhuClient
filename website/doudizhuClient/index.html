@@ -10,6 +10,7 @@
     <script type="text/javascript" src="../js/jquery-3.6.0.js"></script>
     <script type="text/javascript" src="../js/base.js"></script>
     <script type="text/javascript" src="../js/pxmu.min.js"></script>
+    <script type="text/javascript" src="../js/signalr.js"></script>
     <script type="text/javascript" src="doudizhu.js"></script>
     <script type="text/javascript" src="ResourceData.js"></script>
     <script type="text/javascript" src="Prototype.js"></script>
@@ -20,14 +21,6 @@
 <body>
     <canvas id="canvas1"></canvas>
     <script type="text/javascript">
-        let token = getCookie("token");
-        if (token != "")
-        {
-            readyGame(token);
-            DJDDZ.Init("canvas1");
-        }
-        else
-            window.location.replace("http://192.168.0.212/web/index.html");
     </script>
 </body>
 
