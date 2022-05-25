@@ -1,5 +1,5 @@
-var baseUrl = "http://192.168.0.212:5050";
-// var baseUrl = "http://192.168.1.52:5050";
+// var baseUrl = "http://192.168.0.212:5050";
+var baseUrl = "http://192.168.1.52:5050";
 
 // 设置cookie
 function setCookie(name, value) {
