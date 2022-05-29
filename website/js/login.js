@@ -91,6 +91,7 @@ function login(name, password) {
             if (result.msg == "") {
                 console.log(result);
                 setCookie("token", result.token);
+                setCookie("userid", result.userid);
                 window.location.href = "./doudizhuClient/index.html";
             }
             else
