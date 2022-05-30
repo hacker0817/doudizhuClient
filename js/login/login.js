@@ -1,4 +1,5 @@
 $(function () {
+    //绑定注册按钮事件
     $("#register").on("click", function () {
         let name = $("#name").val();
         let pass1 = $("#pass1").val();
@@ -7,6 +8,7 @@ $(function () {
         register(name, pass1, pass2, email);
     });
 
+    //绑定登录按钮事件
     $("#login").on("click", function () {
         let user = $("#user").val();
         let pass = $("#pass").val();
@@ -14,6 +16,7 @@ $(function () {
     });
 });
 
+//注册
 function register(name, password, repeatpwd, email) {
     if (name.trim() == "") {
         pxmu.fail("username cannot be empty");
@@ -63,6 +66,7 @@ function register(name, password, repeatpwd, email) {
     });
 }
 
+//登录
 function login(name, password) {
     if (name.trim() == "") {
         pxmu.fail("username cannot be empty");
@@ -92,7 +96,7 @@ function login(name, password) {
                 console.log(result);
                 setCookie("token", result.token);
                 setCookie("userid", result.userid);
-                window.location.href = "./doudizhuClient/index.html";
+                window.location.href = "./gameRoom.html";
             }
             else
                 pxmu.fail(result.msg);

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>大厅</title>
+    <link rel="stylesheet" type="text/css" href="css/gameRoom/elementPlus.css">
+    <script type="text/javascript" src="js/gameRoom/vue.global.js"></script>
+    <script type="text/javascript" src="js/gameRoom/elementPlus.full.js"></script>
+    <script type="text/javascript" src="js/all/signalr.js"></script>
+    <script type="text/javascript" src="js/all/base.js"></script>
+    <!-- <script type="text/javascript" src="js/gameRoom/gameRoom.js"></script> -->
+</head>
+
+<body>
+    <div id="app">
+        <el-container>
+            <el-aside width="200px">左侧</el-aside>
+            <el-container>
+                <el-header>当前等待玩家人数： {{ userCount }}</el-header>
+                <el-main>
+                    <el-button type="primary" @click="readyGame">准备</el-button>
+                </el-main>
+            </el-container>
+        </el-container>
+    </div>
+
+    <script>
+        const App = {
+            data() {
+                return {
+                    userCount: 0,
+                };
+            },
+            //初始化
+            mounted() {
+                var token = getCookie("token");
+                if (token != "") {
+                    connection = new signalR.HubConnectionBuilder()
+                        .withUrl(baseUrl + "/gamews", {
+                            accessTokenFactory: () => token
+                        })
+                        .build();
+                    //连接关闭
+                    connection.onclose(() => {
+                        console.log("SignalR Closed.");
+                    });
+
+                    connection.on("ReceiveMessage", (user, message) => {
+                        console.log(user);
+                        console.log("reveive:" + message);
+                    });
+
+                    connection.on("UserCount", (message) => {
+                        this.userCount = message;
+                    });
+
+                    connection.on("GameStart", () => {
+                        window.location.replace("http://192.168.0.212/web/ddzGame.html");
+                    });
+
+                    this.start();
+                } else
+                    window.location.replace("http://192.168.0.212/web/index.html");
+            },
+            methods: {
+                //signalR启动
+                async start() {
+                    try {
+                        await connection.start();
+                        console.log("SignalR Connected.");
+                    } catch (err) {
+                        console.log(err);
+                        setTimeout(start, 5000);
+                    }
+                },
+                //向服务器发消息
+                async SendMessageToServer(message) {
+                    try {
+                        await connection.invoke("SendMessageToServer", message);
+                    } catch (err) {
+                        console.log(err);
+                    }
+                },
+                //向用户XX发消息
+                async SendMessageToUser(user, message) {
+                    try {
+                        await connection.invoke("SendMessageToUser", user, message);
+                    } catch (err) {
+                        console.log(err);
+                    }
+                },
+                //准备开始游戏
+                readyGame() {
+                    this.SendMessageToServer("ready");
+                },
+            },
+        };
+        const app = Vue.createApp(App);
+        app.use(ElementPlus);
+        app.mount("#app");
+    </script>
+</body>
+
+</html>

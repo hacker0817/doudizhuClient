@@ -1,4 +1,5 @@
 var baseUrl = "http://192.168.0.212:5050";
+var connection;
 // var baseUrl = "http://192.168.1.52:5050";
 
 // 设置cookie
@@ -13,7 +14,7 @@ function getCookie(name) {
         cookiearr1 = [];
     for (var i = 0; i < cookiearr0.length; i++) {
         cookiearr1 = cookiearr0[i].split("="); //以"="分构字符串为数组,["name","value"]
-        if (cookiearr1[0] == name) { //如果找到相同名称的cookie,返回它的值
+        if (cookiearr1[0].trim() == name) { //如果找到相同名称的cookie,返回它的值
             return decodeURI(cookiearr1[1]);
         }
     }
