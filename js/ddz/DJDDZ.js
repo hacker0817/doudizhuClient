@@ -1,9 +1,53 @@
+var roomId = getCookie("roomId");
+console.log("roomId:" + roomId);
+var token = getCookie("token");
+
 var DJDDZ = {};
 
 var screenW = document.documentElement.clientWidth;
 var screenH = document.documentElement.clientHeight;
 var gameW = 800;
 var gameH = 480;
+
+var userNum = "";
+
+connection = new signalR.HubConnectionBuilder()
+    .withUrl(baseUrl + "/gamews", {
+        accessTokenFactory: () => token,
+    })
+    .build();
+
+async function start() {
+    try {
+        await connection.start();
+        console.log("SignalR Connected.");
+        JoinGame();
+    } catch (err) {
+        console.log(err);
+        setTimeout(start, 5000);
+    }
+}
+
+async function JoinGame() {
+    try {
+        await connection.invoke("JoinGame", roomId);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+connection.on("UserNum", (num) => {
+    userNum = num;
+    console.log("userNum=" + num);
+});
+
+connection.onclose(() => {
+    console.log("SignalR Closed.");
+});
+
+connection.on("Dealing", (gameInfo) => {
+    console.log(gameInfo);
+});
 
 DJDDZ.Init = function (canvasID) {
     JFunction.PreLoadData(GMain.URL).done(function () {
@@ -60,6 +104,7 @@ DJDDZ.Init = function (canvasID) {
             width: 400,
             height: 120
         }, 4, 20); //用于显示出的最后一手牌，显示对象存储在GMain.Poker[4]
+
         var BeginButton = new JControls.Button({
             x: 235,
             y: 0
@@ -71,12 +116,14 @@ DJDDZ.Init = function (canvasID) {
             GMain.StartBtnPanel.visible = false;
             DJDDZ.Dealing();
         };
+
         GMain.StartBtnPanel.addControlInLast([BeginButton]);
         JMain.JForm.addControlInLast([GMain.PokerPanel0, GMain.PokerPanel1, GMain.PokerPanel2, GMain.PokerPanel3, GMain.PokerPanel4, GMain.BtnPanel, GMain.StartBtnPanel]);
         DJDDZ.InitGame();
         JMain.JForm.show();
     });
 };
+
 DJDDZ.InitGame = function () {
     GMain.Poker = [];
     for (var i = 0; i < 5; i++) GMain.Poker[i] = []; //初始化扑克对象存储空间
@@ -93,7 +140,10 @@ DJDDZ.InitGame = function () {
     GMain.DealingNum = 0;
     GMain.DealerNum = JFunction.Random(1, 3);
     GMain.BeginNum = GMain.DealerNum; //初始化发牌起始标识
+    //隐藏开始按钮
+    GMain.StartBtnPanel.visible = false;
 };
+
 DJDDZ.Dealing = function () {
     //发牌
     if (GMain.DealingHandle) clearTimeout(GMain.DealingHandle);
@@ -115,6 +165,8 @@ DJDDZ.Dealing = function () {
         JMain.JForm.show();
     }
 };
+
+
 DJDDZ.GrabTheLandlord = function () {
     //抢地主
     if (GMain.GrabTime == 3 && GMain.MaxScore == 0) {
@@ -818,3 +870,10 @@ GControls.PokerPanel = Class.create(JControls.Object, {
         }
     },
 });
+
+if (roomId != "") {
+    start();
+    DJDDZ.Init("canvas1");
+} else {
+    window.location.replace(httpUrl + "/web/index.html");
+}
