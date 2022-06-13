@@ -47,6 +47,7 @@ connection.onclose(() => {
 
 connection.on("Dealing", (gameInfo) => {
     console.log(gameInfo);
+    DJDDZ.Dealing(JSON.parse(gameInfo));
 });
 
 DJDDZ.Init = function (canvasID) {
@@ -127,7 +128,7 @@ DJDDZ.Init = function (canvasID) {
 DJDDZ.InitGame = function () {
     GMain.Poker = [];
     for (var i = 0; i < 5; i++) GMain.Poker[i] = []; //初始化扑克对象存储空间
-    for (var j = 0; j < 54; j++) GMain.Poker[0][j] = new GControls.Poker(j + 1); //生成扑克对象
+    // for (var j = 0; j < 54; j++) GMain.Poker[0][j] = new GControls.Poker(j + 1); //生成扑克对象
     GMain.PokerPanel0.hidePoker = true; //hidePoker为true，显示扑克背面
     GMain.PokerPanel1.hidePoker = false; //hidePoker为false，显示扑克正面
     GMain.PokerPanel2.hidePoker = true;
@@ -144,26 +145,54 @@ DJDDZ.InitGame = function () {
     GMain.StartBtnPanel.visible = false;
 };
 
-DJDDZ.Dealing = function () {
-    //发牌
-    if (GMain.DealingHandle) clearTimeout(GMain.DealingHandle);
-    if (GMain.DealingNum >= 51) {
-        //已发完牌
-        GMain.MaxScore = 0;
-        GMain.GrabTime = 0;
-        GMain.PokerPanel0.density = 105;
-        DJDDZ.GrabTheLandlord(); //抢地主
-    } else {
-        if (GMain.DealerNum > 3) GMain.DealerNum = 1;
-        var r = JFunction.Random(0, GMain.Poker[0].length - 1);
-        //往玩家DealerNum的手牌Poker里添加一张牌GMain.Poker[0][r]
-        GMain.Poker[GMain.DealerNum].splice(GMain.Poker[GMain.DealerNum].length, 0, GMain.Poker[0][r]);
-        GMain.Poker[0].splice(r, 1);
-        GMain.DealingNum++;
-        GMain.DealerNum++;
-        GMain.DealingHandle = setTimeout(DJDDZ.Dealing, 40); //40毫秒发一张牌
+// DJDDZ.Dealing = function (gameInfo) {
+//     //发牌
+//     if (GMain.DealingHandle) clearTimeout(GMain.DealingHandle);
+//     if (GMain.DealingNum >= 51) {
+//         //已发完牌
+//         GMain.MaxScore = 0;
+//         GMain.GrabTime = 0;
+//         GMain.PokerPanel0.density = 105;
+//         DJDDZ.GrabTheLandlord(); //抢地主
+//     } else {
+//         if (GMain.DealerNum > 3) GMain.DealerNum = 1;
+//         var r = JFunction.Random(0, GMain.Poker[0].length - 1);
+//         //往玩家DealerNum的手牌Poker里添加一张牌GMain.Poker[0][r]
+//         GMain.Poker[GMain.DealerNum].splice(GMain.Poker[GMain.DealerNum].length, 0, GMain.Poker[0][r]);
+//         GMain.Poker[0].splice(r, 1);
+//         GMain.DealingNum++;
+//         GMain.DealerNum++;
+//         GMain.DealingHandle = setTimeout(DJDDZ.Dealing, 40); //40毫秒发一张牌
+//         JMain.JForm.show();
+//     }
+// };
+
+DJDDZ.Dealing = function (gameInfo) {
+    console.log(userNum);
+    for (var i = 0; i < gameInfo.poker0.length; i++) {
+        GMain.Poker[0].splice(GMain.Poker[0].length, 0, new GControls.Poker(gameInfo.poker0[i].index));
         JMain.JForm.show();
     }
+
+    for (var i = 0; i < gameInfo.poker1.length; i++) {
+        GMain.Poker[1].splice(GMain.Poker[1].length, 0, new GControls.Poker(gameInfo.poker1[i].index));
+        JMain.JForm.show();
+    }
+
+    // for (var i = 0; i < gameInfo.poker2.length; i++) {
+    //     GMain.Poker[2].splice(GMain.Poker[2].length, 0, new GControls.Poker(gameInfo.poker2[i].index));
+    //     JMain.JForm.show();
+    // }
+
+    // for (var i = 0; i < gameInfo.poker3.length; i++) {
+    //     GMain.Poker[3].splice(GMain.Poker[3].length, 0, new GControls.Poker(gameInfo.poker3[i].index));
+    //     JMain.JForm.show();
+    // }
+    
+    GMain.MaxScore = 0;
+    GMain.GrabTime = 0;
+    GMain.PokerPanel0.density = 105;
+    DJDDZ.GrabTheLandlord(); //抢地主
 };
 
 
