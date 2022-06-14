@@ -94,8 +94,8 @@ function login(name, password) {
         success: function (result, status, xhr) {
             if (result.msg == "") {
                 console.log(result);
-                setCookie("token", result.token);
-                setCookie("userid", result.userid);
+                localStorage.setItem("token", result.token);
+                localStorage.setItem("userid", result.userid);
                 window.location.href = "./gameRoom.html";
             }
             else

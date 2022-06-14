@@ -1,6 +1,11 @@
-var roomId = getCookie("roomId");
+var roomId = localStorage.getItem("roomId");
+var userid = localStorage.getItem("userid");
+var userNum = localStorage.getItem("userNum");
+var token = localStorage.getItem("token");
 console.log("roomId:" + roomId);
-var token = getCookie("token");
+console.log("userid:" + userid);
+console.log("userNum:" + userNum);
+console.log("token:" + token);
 
 var DJDDZ = {};
 
@@ -8,8 +13,6 @@ var screenW = document.documentElement.clientWidth;
 var screenH = document.documentElement.clientHeight;
 var gameW = 800;
 var gameH = 480;
-
-var userNum = "";
 
 connection = new signalR.HubConnectionBuilder()
     .withUrl(baseUrl + "/gamews", {
@@ -21,105 +24,147 @@ async function start() {
     try {
         await connection.start();
         console.log("SignalR Connected.");
-        JoinGame();
+        DealPoker();
     } catch (err) {
         console.log(err);
         setTimeout(start, 5000);
     }
 }
 
-async function JoinGame() {
+async function DealPoker() {
     try {
-        await connection.invoke("JoinGame", roomId);
+        await connection.invoke("DealPoker", roomId, userNum);
     } catch (err) {
         console.log(err);
     }
 }
 
-connection.on("UserNum", (num) => {
-    userNum = num;
-    console.log("userNum=" + num);
-});
-
 connection.onclose(() => {
     console.log("SignalR Closed.");
 });
 
-connection.on("Dealing", (gameInfo) => {
-    console.log(gameInfo);
-    DJDDZ.Dealing(JSON.parse(gameInfo));
+connection.on("wait", (action) => {
+    
+});
+
+connection.on("deal", (r) => {
+    DJDDZ.Dealing(r);
 });
 
 DJDDZ.Init = function (canvasID) {
     JFunction.PreLoadData(GMain.URL).done(function () {
         JMain.JForm = new JControls.Form(GMain.Size, canvasID).setBGImage(ResourceData.Images.bg1);
         JMain.JForm.clearControls();
-        GMain.BtnPanel = new JControls.Object({
-            x: 100,
-            y: 280
-        }, {
-            width: 600,
-            height: 50
-        }); //用于显示游戏控制按钮
+        GMain.BtnPanel = new JControls.Object(
+            {
+                x: 100,
+                y: 280,
+            },
+            {
+                width: 600,
+                height: 50,
+            }
+        ); //用于显示游戏控制按钮
 
-        GMain.StartBtnPanel = new JControls.Object({
-            x: 100,
-            y: 330
-        }, {
-            width: 600,
-            height: 50
-        }); //用于显示游戏控制按钮
+        GMain.StartBtnPanel = new JControls.Object(
+            {
+                x: 100,
+                y: 330,
+            },
+            {
+                width: 600,
+                height: 50,
+            }
+        ); //用于显示游戏控制按钮
 
-        GMain.PokerPanel0 = new GControls.PokerPanel({
-            x: 100,
-            y: 5
-        }, {
-            width: 600,
-            height: 120
-        }, 0, 0); //用于显示底牌，显示对象存储在GMain.Poker[0]
-        GMain.PokerPanel1 = new GControls.PokerPanel({
-            x: 200,
-            y: 355
-        }, {
-            width: 400,
-            height: 120
-        }, 1, 20); //用于显示自己的牌，显示对象存储在GMain.Poker[1]
-        GMain.PokerPanel2 = new GControls.PokerPanel({
-            x: 695,
-            y: 60
-        }, {
-            width: 100,
-            height: 440
-        }, 2, 25); //用于显示右边电脑的牌，显示对象存储在GMain.Poker[2]
-        GMain.PokerPanel3 = new GControls.PokerPanel({
-            x: 5,
-            y: 60
-        }, {
-            width: 100,
-            height: 440
-        }, 3, 25); //用于显示左边电脑的牌，显示对象存储在GMain.Poker[3]
-        GMain.PokerPanel4 = new GControls.PokerPanel({
-            x: 200,
-            y: 150
-        }, {
-            width: 400,
-            height: 120
-        }, 4, 20); //用于显示出的最后一手牌，显示对象存储在GMain.Poker[4]
+        GMain.PokerPanel0 = new GControls.PokerPanel(
+            {
+                x: 100,
+                y: 5,
+            },
+            {
+                width: 600,
+                height: 120,
+            },
+            0,
+            0
+        ); //用于显示底牌，显示对象存储在GMain.Poker[0]
+        GMain.PokerPanel1 = new GControls.PokerPanel(
+            {
+                x: 200,
+                y: 355,
+            },
+            {
+                width: 400,
+                height: 120,
+            },
+            1,
+            20
+        ); //用于显示自己的牌，显示对象存储在GMain.Poker[1]
+        GMain.PokerPanel2 = new GControls.PokerPanel(
+            {
+                x: 695,
+                y: 60,
+            },
+            {
+                width: 100,
+                height: 440,
+            },
+            2,
+            25
+        ); //用于显示右边电脑的牌，显示对象存储在GMain.Poker[2]
+        GMain.PokerPanel3 = new GControls.PokerPanel(
+            {
+                x: 5,
+                y: 60,
+            },
+            {
+                width: 100,
+                height: 440,
+            },
+            3,
+            25
+        ); //用于显示左边电脑的牌，显示对象存储在GMain.Poker[3]
+        GMain.PokerPanel4 = new GControls.PokerPanel(
+            {
+                x: 200,
+                y: 150,
+            },
+            {
+                width: 400,
+                height: 120,
+            },
+            4,
+            20
+        ); //用于显示出的最后一手牌，显示对象存储在GMain.Poker[4]
 
-        var BeginButton = new JControls.Button({
-            x: 235,
-            y: 0
-        }, {
-            width: 130,
-            height: 50
-        }).setText("").setBGImage(ResourceData.Images.kaishi);
+        var BeginButton = new JControls.Button(
+            {
+                x: 235,
+                y: 0,
+            },
+            {
+                width: 130,
+                height: 50,
+            }
+        )
+            .setText("")
+            .setBGImage(ResourceData.Images.kaishi);
         BeginButton.onClick = function () {
             GMain.StartBtnPanel.visible = false;
             DJDDZ.Dealing();
         };
 
         GMain.StartBtnPanel.addControlInLast([BeginButton]);
-        JMain.JForm.addControlInLast([GMain.PokerPanel0, GMain.PokerPanel1, GMain.PokerPanel2, GMain.PokerPanel3, GMain.PokerPanel4, GMain.BtnPanel, GMain.StartBtnPanel]);
+        JMain.JForm.addControlInLast([
+            GMain.PokerPanel0,
+            GMain.PokerPanel1,
+            GMain.PokerPanel2,
+            GMain.PokerPanel3,
+            GMain.PokerPanel4,
+            GMain.BtnPanel,
+            GMain.StartBtnPanel,
+        ]);
         DJDDZ.InitGame();
         JMain.JForm.show();
     });
@@ -128,7 +173,7 @@ DJDDZ.Init = function (canvasID) {
 DJDDZ.InitGame = function () {
     GMain.Poker = [];
     for (var i = 0; i < 5; i++) GMain.Poker[i] = []; //初始化扑克对象存储空间
-    // for (var j = 0; j < 54; j++) GMain.Poker[0][j] = new GControls.Poker(j + 1); //生成扑克对象
+    for (var j = 0; j < 54; j++) GMain.Poker[0][j] = new GControls.Poker(j + 1); //生成扑克对象
     GMain.PokerPanel0.hidePoker = true; //hidePoker为true，显示扑克背面
     GMain.PokerPanel1.hidePoker = false; //hidePoker为false，显示扑克正面
     GMain.PokerPanel2.hidePoker = true;
@@ -167,34 +212,27 @@ DJDDZ.InitGame = function () {
 //     }
 // };
 
-DJDDZ.Dealing = function (gameInfo) {
-    console.log(userNum);
-    for (var i = 0; i < gameInfo.poker0.length; i++) {
-        GMain.Poker[0].splice(GMain.Poker[0].length, 0, new GControls.Poker(gameInfo.poker0[i].index));
+DJDDZ.Dealing = function (r) {
+    if (r != 0) {
+        var poker = new GControls.Poker(r);
+        GMain.Poker[1].splice(GMain.Poker[1].length, 0, poker);
+        setTimeout(function () {
+            GMain.Poker[2].splice(GMain.Poker[2].length, 0, poker);
+        }, 40);
+        setTimeout(function () {
+            GMain.Poker[3].splice(GMain.Poker[3].length, 0, poker);
+        }, 40);
         JMain.JForm.show();
+        DealPoker();
     }
-
-    for (var i = 0; i < gameInfo.poker1.length; i++) {
-        GMain.Poker[1].splice(GMain.Poker[1].length, 0, new GControls.Poker(gameInfo.poker1[i].index));
-        JMain.JForm.show();
+    else
+    {
+        GMain.MaxScore = 0;
+        GMain.GrabTime = 0;
+        GMain.PokerPanel0.density = 105;
+        DJDDZ.GrabTheLandlord(); //抢地主
     }
-
-    // for (var i = 0; i < gameInfo.poker2.length; i++) {
-    //     GMain.Poker[2].splice(GMain.Poker[2].length, 0, new GControls.Poker(gameInfo.poker2[i].index));
-    //     JMain.JForm.show();
-    // }
-
-    // for (var i = 0; i < gameInfo.poker3.length; i++) {
-    //     GMain.Poker[3].splice(GMain.Poker[3].length, 0, new GControls.Poker(gameInfo.poker3[i].index));
-    //     JMain.JForm.show();
-    // }
-    
-    GMain.MaxScore = 0;
-    GMain.GrabTime = 0;
-    GMain.PokerPanel0.density = 105;
-    DJDDZ.GrabTheLandlord(); //抢地主
 };
-
 
 DJDDZ.GrabTheLandlord = function () {
     //抢地主
@@ -221,34 +259,57 @@ DJDDZ.GrabTheLandlord = function () {
     if (GMain.DealerNum == 1) {
         //自己抢地主
         GMain.BtnPanel.clearControls();
-        var Button1 = new GControls.GrabButton({
-            x: 10,
-            y: 0
-        }, {
-            width: 130,
-            height: 50
-        }, 1).setText("").setBGImage(ResourceData.Images.yf);
-        var Button2 = new GControls.GrabButton({
-            x: 160,
-            y: 0
-        }, {
-            width: 130,
-            height: 50
-        }, 2).setText("").setBGImage(ResourceData.Images.ef);
-        var Button3 = new GControls.GrabButton({
-            x: 310,
-            y: 0
-        }, {
-            width: 130,
-            height: 50
-        }, 3).setText("").setBGImage(ResourceData.Images.sf);
-        var Button4 = new GControls.GrabButton({
-            x: 460,
-            y: 0
-        }, {
-            width: 130,
-            height: 50
-        }).setText("").setBGImage(ResourceData.Images.buqiang);
+        var Button1 = new GControls.GrabButton(
+            {
+                x: 10,
+                y: 0,
+            },
+            {
+                width: 130,
+                height: 50,
+            },
+            1
+        )
+            .setText("")
+            .setBGImage(ResourceData.Images.yf);
+        var Button2 = new GControls.GrabButton(
+            {
+                x: 160,
+                y: 0,
+            },
+            {
+                width: 130,
+                height: 50,
+            },
+            2
+        )
+            .setText("")
+            .setBGImage(ResourceData.Images.ef);
+        var Button3 = new GControls.GrabButton(
+            {
+                x: 310,
+                y: 0,
+            },
+            {
+                width: 130,
+                height: 50,
+            },
+            3
+        )
+            .setText("")
+            .setBGImage(ResourceData.Images.sf);
+        var Button4 = new GControls.GrabButton(
+            {
+                x: 460,
+                y: 0,
+            },
+            {
+                width: 130,
+                height: 50,
+            }
+        )
+            .setText("")
+            .setBGImage(ResourceData.Images.buqiang);
         GMain.BtnPanel.addControlInLast([Button1, Button2, Button3, Button4]);
         GMain.BtnPanel.visible = true;
         JMain.JForm.show();
@@ -280,13 +341,19 @@ DJDDZ.ToPlay = function () {
         GMain.BtnPanel.clearControls();
         if (GMain.LastHandNum == 2 || GMain.LastHandNum == 3) {
             //不是该轮第一个出牌，可以选择不出牌
-            var Button1 = new JControls.Button({
-                x: 50,
-                y: 0
-            }, {
-                width: 100,
-                height: 50
-            }, 1).setText("").setBGImage(ResourceData.Images.buchu);
+            var Button1 = new JControls.Button(
+                {
+                    x: 50,
+                    y: 0,
+                },
+                {
+                    width: 100,
+                    height: 50,
+                },
+                1
+            )
+                .setText("")
+                .setBGImage(ResourceData.Images.buchu);
             Button1.onClick = function () {
                 for (var i = GMain.Poker[GMain.DealerNum].length - 1; i >= 0; i--) GMain.Poker[GMain.DealerNum][i].isSelected = false;
                 GMain.DealerNum++;
@@ -294,13 +361,18 @@ DJDDZ.ToPlay = function () {
                 DJDDZ.ToPlay();
             };
         }
-        var Button2 = new JControls.Button({
-            x: 250,
-            y: 0
-        }, {
-            width: 100,
-            height: 50
-        }).setText("").setBGImage(ResourceData.Images.chupai);
+        var Button2 = new JControls.Button(
+            {
+                x: 250,
+                y: 0,
+            },
+            {
+                width: 100,
+                height: 50,
+            }
+        )
+            .setText("")
+            .setBGImage(ResourceData.Images.chupai);
         Button2.onClick = function () {
             var _pokerNumbers = [];
             for (var i = GMain.Poker[GMain.DealerNum].length - 1; i >= 0; i--) {
@@ -318,13 +390,18 @@ DJDDZ.ToPlay = function () {
                 alert("出牌不符合规则，请重新选择！");
             }
         };
-        var Button3 = new JControls.Button({
-            x: 450,
-            y: 0
-        }, {
-            width: 100,
-            height: 50
-        }).setText("").setBGImage(ResourceData.Images.tishi);
+        var Button3 = new JControls.Button(
+            {
+                x: 450,
+                y: 0,
+            },
+            {
+                width: 100,
+                height: 50,
+            }
+        )
+            .setText("")
+            .setBGImage(ResourceData.Images.tishi);
         Button3.onClick = function () {
             DJDDZ.AISelectPoker();
             JMain.JForm.show();
@@ -405,7 +482,7 @@ DJDDZ.GetPokerType = function (__pokerNumbers, chaiNum) {
     var pokerType = {
         type: "",
         num: 0,
-        length: __pokerNumbers.length
+        length: __pokerNumbers.length,
     };
     if (splitPoker["12"].length > 0) {
         if (pokerType.length == 2) pokerType.type = "12"; //王弹
@@ -484,7 +561,7 @@ DJDDZ.GetPokerByType = function (__pokerNumbers, type) {
             SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
                 type: zcy,
                 num: type.num,
-                length: l * GMain.PokerTypes[zcy].allNum
+                length: l * GMain.PokerTypes[zcy].allNum,
             }); //先选主类型
             if (SPN.length > 0) {
                 for (var i = 0; i < SPN.length; i++) {
@@ -499,7 +576,7 @@ DJDDZ.GetPokerByType = function (__pokerNumbers, type) {
                     var spn1 = DJDDZ.GetPokerByType(_pokerNumbers, {
                         type: fcy,
                         num: 0,
-                        length: GMain.PokerTypes[fcy].allNum
+                        length: GMain.PokerTypes[fcy].allNum,
                     });
                     for (var i = 0; i < spn1.length; i++) SPN[SPN.length] = spn1[i];
                     fcyNum--;
@@ -532,7 +609,7 @@ DJDDZ.AISelectPoker = function () {
                             SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
                                 type: "11122",
                                 num: 0,
-                                length: 5 * i
+                                length: 5 * i,
                             });
                             if (SPN.length > 0) break;
                         }
@@ -542,7 +619,7 @@ DJDDZ.AISelectPoker = function () {
                             SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
                                 type: "1112",
                                 num: 0,
-                                length: 4 * i
+                                length: 4 * i,
                             });
                             if (SPN.length > 0) break;
                         }
@@ -552,7 +629,7 @@ DJDDZ.AISelectPoker = function () {
                             SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
                                 type: "111",
                                 num: 0,
-                                length: 3 * i
+                                length: 3 * i,
                             });
                             if (SPN.length > 0) break;
                         }
@@ -579,29 +656,32 @@ DJDDZ.AISelectPoker = function () {
                         SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
                             type: "11",
                             num: 0,
-                            length: 2 * i
+                            length: 2 * i,
                         });
                         if (SPN.length > 0) break;
                     }
-                    if (SPN.length == 0) SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
-                        type: "11",
-                        num: 0,
-                        length: 2
-                    }); //出对子
+                    if (SPN.length == 0)
+                        SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
+                            type: "11",
+                            num: 0,
+                            length: 2,
+                        }); //出对子
                 } else {
                     if (splitPoker["1"].length > 0) SPN[SPN.length] = splitPoker["1"][0]; //出单牌
                 }
             }
-            if (SPN.length == 0) SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
-                type: "1111",
-                num: 0,
-                length: 4
-            }); //出炸弹
-            if (SPN.length == 0) SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
-                type: "12",
-                num: 0,
-                length: 2
-            }); //出王炸
+            if (SPN.length == 0)
+                SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
+                    type: "1111",
+                    num: 0,
+                    length: 4,
+                }); //出炸弹
+            if (SPN.length == 0)
+                SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
+                    type: "12",
+                    num: 0,
+                    length: 2,
+                }); //出王炸
         } else {
             if (GMain.LastHandPokerType.type != "12") {
                 if (GMain.LandlordNum == GMain.DealerNum || GMain.LastHandNum == GMain.LandlordNum) {
@@ -611,13 +691,14 @@ DJDDZ.AISelectPoker = function () {
                         SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
                             type: "1111",
                             num: 0,
-                            length: 4
+                            length: 4,
                         });
-                    if (SPN.length == 0) SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
-                        type: "12",
-                        num: 0,
-                        length: 2
-                    });
+                    if (SPN.length == 0)
+                        SPN = DJDDZ.GetPokerByType(_pokerNumbers, {
+                            type: "12",
+                            num: 0,
+                            length: 2,
+                        });
                 } else {
                     //接同伴的牌
                     if (GMain.Poker[GMain.LastHandNum].length > 5) {
@@ -666,7 +747,7 @@ DJDDZ.PlayPoker = function () {
 var GMain = {
     Size: {
         width: gameW,
-        height: gameH
+        height: gameH,
     }, //屏幕大小
     URL: "",
     Poker: null,
@@ -679,7 +760,7 @@ var GMain = {
     DealingNum: null, //已发牌数
     PokerSize: {
         width: 100,
-        height: 120
+        height: 120,
     }, //扑克牌大小
     LastHandNum: null, //标示谁出的最后一手牌
     LastHandPokerType: null, //最后一手牌类型
@@ -692,25 +773,25 @@ var GMain = {
             weight: 1,
             allNum: 1,
             minL: 5,
-            maxL: 12
+            maxL: 12,
         },
         11: {
             weight: 1,
             allNum: 2,
             minL: 3,
-            maxL: 10
+            maxL: 10,
         },
         111: {
             weight: 1,
             allNum: 3,
             minL: 1,
-            maxL: 6
+            maxL: 6,
         },
         1111: {
             weight: 2,
             allNum: 4,
             minL: 1,
-            maxL: 1
+            maxL: 1,
         },
         1112: {
             weight: 1,
@@ -719,7 +800,7 @@ var GMain = {
             fcyNum: 1,
             allNum: 4,
             minL: 1,
-            maxL: 5
+            maxL: 5,
         },
         11122: {
             weight: 1,
@@ -728,7 +809,7 @@ var GMain = {
             fcyNum: 1,
             allNum: 5,
             minL: 1,
-            maxL: 4
+            maxL: 4,
         },
         111123: {
             weight: 1,
@@ -737,7 +818,7 @@ var GMain = {
             fcyNum: 2,
             allNum: 6,
             minL: 1,
-            maxL: 1
+            maxL: 1,
         },
         11112233: {
             weight: 1,
@@ -746,13 +827,13 @@ var GMain = {
             fcyNum: 2,
             allNum: 8,
             minL: 1,
-            maxL: 1
+            maxL: 1,
         },
         12: {
             weight: 3,
             allNum: 2,
             minL: 1,
-            maxL: 1
+            maxL: 1,
         },
     },
 };
@@ -834,7 +915,7 @@ GControls.PokerPanel = Class.create(JControls.Object, {
             }
             GMain.Poker[this.pokerPanelNum][i].setRelativePosition({
                 x: x,
-                y: y
+                y: y,
             });
             if (this.hidePoker) GMain.Poker[this.pokerPanelNum][i].isHidePoker = true;
             else GMain.Poker[this.pokerPanelNum][i].isHidePoker = false;
@@ -842,13 +923,16 @@ GControls.PokerPanel = Class.create(JControls.Object, {
         this.clearControls();
         this.addControlInLast(GMain.Poker[this.pokerPanelNum]);
         if (GMain.ToPlay) {
-            var label1 = new JControls.Button({
-                x: 450,
-                y: 0
-            }, {
-                width: 30,
-                height: 30
-            });
+            var label1 = new JControls.Button(
+                {
+                    x: 450,
+                    y: 0,
+                },
+                {
+                    width: 30,
+                    height: 30,
+                }
+            );
             var label2 = new JControls.Label()
                 .setFontType("bold")
                 .setFontSize(20)
@@ -862,31 +946,31 @@ GControls.PokerPanel = Class.create(JControls.Object, {
             if (this.pokerPanelNum == 1) {
                 label1.setRelativePosition({
                     x: 80,
-                    y: -30
+                    y: -30,
                 });
                 label2.setRelativePosition({
                     x: 200,
-                    y: -30
+                    y: -30,
                 });
                 this.addControlInLast([label1, label2]);
             } else if (this.pokerPanelNum == 2) {
                 label1.setRelativePosition({
                     x: -30,
-                    y: 50
+                    y: 50,
                 });
                 label2.setRelativePosition({
                     x: -30,
-                    y: 150
+                    y: 150,
                 });
                 this.addControlInLast([label1, label2]);
             } else if (this.pokerPanelNum == 3) {
                 label1.setRelativePosition({
                     x: 105,
-                    y: 50
+                    y: 50,
                 });
                 label2.setRelativePosition({
                     x: 105,
-                    y: 150
+                    y: 150,
                 });
                 this.addControlInLast([label1, label2]);
             }

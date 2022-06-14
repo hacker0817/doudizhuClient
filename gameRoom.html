@@ -34,7 +34,7 @@
                 },
                 //初始化
                 mounted() {
-                    var token = getCookie("token");
+                    var token = localStorage.getItem("token");
                     if (token != "") {
                         connection = new signalR.HubConnectionBuilder()
                             .withUrl(baseUrl + "/gamews", {
@@ -50,13 +50,18 @@
                             this.userCount = message;
                         });
 
+                        connection.on("UserNum", (num) => {
+                            localStorage.setItem("userNum", num);
+                            console.log("userNum:" + num);
+                        });
+
                         connection.on("GameStart", (roomId) => {
-                            setCookie("roomId", roomId);
-                            window.location.replace(httpUrl + "/web/ddzGame.html");
+                            localStorage.setItem("roomId", roomId);
+                            window.location.href = "./ddzGame.html";
                         });
 
                         this.start();
-                    } else window.location.replace(httpUrl + "/web/index.html");
+                    } else window.location.href = "./index.html";
                 },
                 methods: {
                     //signalR启动
@@ -69,17 +74,13 @@
                             setTimeout(start, 5000);
                         }
                     },
-                    //向服务器发消息
-                    async readyTheGame(message) {
+                    //准备开始游戏
+                    async readyGame() {
                         try {
-                            await connection.invoke("ReadyGame", message);
+                            await connection.invoke("ReadyGame");
                         } catch (err) {
                             console.log(err);
                         }
-                    },
-                    //准备开始游戏
-                    readyGame() {
-                        this.readyTheGame("ready");
                     },
                 },
             };
